@@ -1,0 +1,3 @@
+export enum SERVICE {
+  NATS_SERVICE = 'NATS_SERVICE',
+}
