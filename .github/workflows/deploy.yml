@@ -32,7 +32,7 @@ jobs:
             # Navegar al directorio de usuario y clonar el repositorio
             cd /home/ec2-user/
             rm -rf Products-launcher  # Elimina cualquier versión anterior del proyecto
-            git clone https://github.com/Kahyberth/Products-launcher.git  # Clona el repositorio de nuevo
+            git clone git@github.com:Kahyberth/Products-launcher.git  # Clona el repositorio de nuevo
 
             # Cambia al directorio del proyecto clonado
             cd Products-launcher
