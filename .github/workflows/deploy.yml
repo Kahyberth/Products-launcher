@@ -25,7 +25,7 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           NATS_SERVERS: ${{ secrets.NATS_SERVERS }}
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@975050179119 << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@18.209.58.1 << 'EOF'
             cd /home/ec2-user/  # Cambia a la ruta donde está tu docker-compose.yml y el archivo .env
             docker-compose pull  # Descargar las últimas versiones de las imágenes
             docker-compose down  # Detener cualquier contenedor en ejecución
