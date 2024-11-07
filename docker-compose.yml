@@ -8,10 +8,10 @@ services:
   client-gateway:
     build: ./client-gateway
     ports:
-      - ${CLIENT_GATEWAY_PORT}:3000
+      - 3000:3000
     volumes:
       - ./client-gateway/src:/usr/src/app/src
-    command: npm run start:dev
+    command: npm run start
     environment:
       - PORT=3000
       - NATS_SERVERS=${NATS_SERVERS}
@@ -20,7 +20,7 @@ services:
     build: ./products-ms
     volumes:
       - ./products-ms/src:/usr/src/app/src
-    command: npm run start:dev
+    command: npm run start
     environment:
       - PORT=3001
       - NATS_SERVERS=${NATS_SERVERS}
@@ -32,7 +32,7 @@ services:
     build: ./orders-ms
     volumes:
       - ./orders-ms/src:/usr/src/app/src
-    command: npm run start:dev
+    command: npm run start
     environment:
       - PORT=3002
       - NATS_SERVERS=${NATS_SERVERS}
