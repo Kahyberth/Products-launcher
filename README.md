@@ -2,7 +2,7 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-## Dev
+## Dev // Test - EC2
 
 1. Clone the repository
 2. Create a new `.env` based on the `.env.template`
