@@ -1,0 +1,33 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main  # Esto ejecutará el flujo de trabajo al hacer push en la rama main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_KEY }}  # Tu llave privada, configurada en Secrets
+
+      - name: Deploy to EC2
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          NATS_SERVERS: ${{ secrets.NATS_SERVERS }}
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@975050179119 << 'EOF'
+            cd /home/ec2-user/  # Cambia a la ruta donde está tu docker-compose.yml y el archivo .env
+            docker-compose pull  # Descargar las últimas versiones de las imágenes
+            docker-compose down  # Detener cualquier contenedor en ejecución
+            docker-compose up -d  # Levantar los servicios en segundo plano
+          EOF
