@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main  
+      - main
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.EC2_KEY }}  # Tu llave privada, configurada en Secrets
+          ssh-private-key: ${{ secrets.EC2_KEY }}
 
       - name: Deploy to EC2
         env:
@@ -24,32 +24,25 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
           NATS_SERVERS: ${{ secrets.NATS_SERVERS }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token de acceso personal para GitHub
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@54.163.50.213 << 'EOF'
+          ssh -o ServerAliveInterval=50 -o ServerAliveCountMax=4 -o StrictHostKeyChecking=no ec2-user@18.208.211.181 << 'EOF'
             # Instalar Git si no está instalado
             sudo dnf install -y git
 
-            # Navegar al directorio de usuario y clonar el repositorio usando HTTPS
+            # Configurar SSH para GitHub y clonar el repositorio
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
             cd /home/ec2-user/
-            rm -rf Products-launcher  # Elimina cualquier versión anterior del proyecto
-            git clone https://github.com/Kahyberth/Products-launcher.git  # Clona usando HTTPS y el token
+            rm -rf Products-launcher
+            git clone https://github.com/Kahyberth/Products-launcher.git
 
-            # Cambia al directorio del proyecto
+            # Navegar al directorio del proyecto
             cd Products-launcher
-          EOF
 
-      - name: Deploy to EC2 - Docker Compose Pull
-        run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@54.163.50.213 << 'EOF'
-            cd /home/ec2-user/Products-launcher
+            # Actualizar imágenes y levantar servicios en segundo plano
             docker-compose pull
-          EOF
-
-      - name: Deploy to EC2 - Docker Compose Down and Up
-        run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@54.163.50.213 << 'EOF'
-            cd /home/ec2-user/Products-launcher
             docker-compose down
-            docker-compose up -d
+            
+            # Ejecutar docker-compose up -d en segundo plano
+            nohup docker-compose up -d > deploy.log 2>&1 &
           EOF
