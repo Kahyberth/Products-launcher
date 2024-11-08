@@ -33,7 +33,7 @@ jobs:
             # Navegar al directorio de usuario y clonar el repositorio usando HTTPS
             cd /home/ec2-user/
             rm -rf Products-launcher  # Elimina cualquier versión anterior del proyecto
-            git clone https://$GITHUB_TOKEN@github.com/Kahyberth/Products-launcher.git  # Clona usando HTTPS y el token
+            git clone https://github.com/Kahyberth/Products-launcher.git  # Clona usando HTTPS y el token
 
             # Cambia al directorio del proyecto clonado
             cd Products-launcher
