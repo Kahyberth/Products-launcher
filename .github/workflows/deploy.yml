@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main
+      - main  
 
 jobs:
   deploy:
@@ -16,17 +16,27 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.EC2_KEY }}
+          ssh-private-key: ${{ secrets.EC2_KEY }}  # Tu llave privada, configurada en Secrets
 
-      - name: Deploy to EC2 - Git Clone
+      - name: Deploy to EC2
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          NATS_SERVERS: ${{ secrets.NATS_SERVERS }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token de acceso personal para GitHub
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@54.163.50.213 << 'EOF'
+            # Instalar Git si no está instalado
             sudo dnf install -y git
-            mkdir -p ~/.ssh
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+            # Navegar al directorio de usuario y clonar el repositorio usando HTTPS
             cd /home/ec2-user/
-            rm -rf Products-launcher
-            git clone https://github.com/Kahyberth/Products-launcher.git
+            rm -rf Products-launcher  # Elimina cualquier versión anterior del proyecto
+            git clone https://github.com/Kahyberth/Products-launcher.git  # Clona usando HTTPS y el token
+
+            # Cambia al directorio del proyecto clonado
+            cd Products-launcher
           EOF
 
       - name: Deploy to EC2 - Docker Compose Pull
