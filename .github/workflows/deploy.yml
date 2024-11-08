@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main  
+      - main
 
 jobs:
   deploy:
@@ -16,32 +16,30 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.EC2_KEY }}  # Tu llave privada, configurada en Secrets
+          ssh-private-key: ${{ secrets.EC2_KEY }}
 
-      - name: Deploy to EC2
-        env:
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          NATS_SERVERS: ${{ secrets.NATS_SERVERS }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token de acceso personal para GitHub
+      - name: Deploy to EC2 - Git Clone
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@54.198.163.46 << 'EOF'
-            # Instalar Git si no está instalado
+          ssh -o StrictHostKeyChecking=no ec2-user@54.163.50.213 << 'EOF'
             sudo dnf install -y git
-
-            # Navegar al directorio de usuario y clonar el repositorio usando HTTPS
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
             cd /home/ec2-user/
-            rm -rf Products-launcher  # Elimina cualquier versión anterior del proyecto
-            git clone https://github.com/Kahyberth/Products-launcher.git  # Clona usando HTTPS y el token
+            rm -rf Products-launcher
+            git clone https://github.com/Kahyberth/Products-launcher.git
+          EOF
 
-            # Cambia al directorio del proyecto clonado
-            cd Products-launcher
-
-            # Descargar las últimas versiones de las imágenes de Docker
+      - name: Deploy to EC2 - Docker Compose Pull
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@54.163.50.213 << 'EOF'
+            cd /home/ec2-user/Products-launcher
             docker-compose pull
-            # Detener y eliminar contenedores en ejecución
+          EOF
+
+      - name: Deploy to EC2 - Docker Compose Down and Up
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@54.163.50.213 << 'EOF'
+            cd /home/ec2-user/Products-launcher
             docker-compose down
-            # Levantar los servicios en segundo plano
             docker-compose up -d
           EOF
